@@ -106,3 +106,71 @@ column_index=6
 # Run the bracket value extraction function
 extract_bracket_values "$csv_file" "$column_index"
 
+
+
+code with progress 
+
+#!/bin/bash
+
+# Function to extract the first word inside angle brackets in each sentence
+extract_bracket_values() {
+  local csv_file=$1
+  local column_index=$2  # Assuming the F column is 6th, so the index is 6
+  local max_rows=10      # Limit the number of rows to process
+  local current_row=0    # Initialize row counter
+  declare -A counts
+
+  # Read the CSV file line by line
+  while IFS=',' read -r -a line; do
+    # Increment the row counter
+    ((current_row++))
+
+    # Stop processing after 10 rows
+    if [ $current_row -gt $max_rows ]; then
+      break
+    fi
+
+    # Extract the content of the F column (adjust column index if necessary)
+    sentences=${line[$((column_index - 1))]}
+
+    # Process each sentence in the cell (assuming sentences are split by newlines or semicolons)
+    echo "$sentences" | while IFS= read -r sentence; do
+      # Print the current sentence being processed
+      echo "Processing row $current_row: $sentence"
+
+      # Check if there are angle brackets in the sentence
+      if [[ "$sentence" =~ "<" && "$sentence" =~ ">" ]]; then
+        # Extract the first value inside the angle brackets <>
+        value=$(echo "$sentence" | grep -oP '<\K[^>]+')
+
+        if [ ! -z "$value" ]; then
+          # Increment the count for the extracted value
+          counts["$value"]=$((counts["$value"] + 1))
+        fi
+      fi
+    done
+
+    # Print progress
+    echo "Completed processing row $current_row"
+  done < "$csv_file"
+
+  # Output the count of each unique value found
+  echo "Final counts of values:"
+  for value in "${!counts[@]}"; do
+    echo "$value = ${counts[$value]}"
+  done
+}
+
+# Main script logic
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <csv_file>"
+  exit 1
+fi
+
+csv_file=$1
+
+# Assuming the F column is the 6th column in the CSV (adjust this if needed)
+column_index=6
+
+# Run the bracket value extraction function
+extract_bracket_values "$csv_file" "$column_index"

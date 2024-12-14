@@ -77,3 +77,7 @@ public class ExcelComparator {
     <artifactId>poi-ooxml</artifactId>
     <version>5.2.2</version>
 </dependency>
+
+{
+  "query": "DO $$ DECLARE v_return_code INTEGER; v_return_msg VARCHAR; BEGIN CALL VBUILD.PROC_NNI_BACKLOG_RPT(1, 101, 201, '2024-01-01', '2024-01-31', 'Texas', 'Houston', v_return_code, v_return_msg); RAISE NOTICE 'Return Code: %, Return Msg: %', v_return_code, v_return_msg; END $$;"
+}
